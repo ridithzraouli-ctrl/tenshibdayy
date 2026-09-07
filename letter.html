@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>♡</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+
+            background:
+                radial-gradient(circle at 15% 20%, rgba(255,255,255,0.9) 0 2px, transparent 3px),
+                radial-gradient(circle at 80% 75%, rgba(255,255,255,0.8) 0 2px, transparent 3px),
+                linear-gradient(135deg, #f5e9ed, #eadde5 50%, #f7edf0);
+
+            background-size: 150px 150px, 180px 180px, 100% 100%;
+        }
+
+        .letter {
+            width: min(900px, 100%);
+            max-height: 92vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow:
+                0 25px 70px rgba(80, 58, 70, 0.18),
+                0 4px 15px rgba(80, 58, 70, 0.08);
+        }
+    </style>
+</head>
+
+<body>
+
+    <img
+        class="letter"
+        src="YOUR LETTER IMAGE HERE"
+        alt=""
+    >
+
+</body>
+</html>
