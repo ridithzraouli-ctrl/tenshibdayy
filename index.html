@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>♡</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Quicksand:wght@400;500;600&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.9) 0 2px, transparent 3px),
+                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.8) 0 1px, transparent 2px),
+                linear-gradient(135deg, #f5e9ed, #eadde5 50%, #f7edf0);
+            background-size: 130px 130px, 170px 170px, 100% 100%;
+            color: #594b55;
+            font-family: 'Quicksand', sans-serif;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "✦";
+            position: fixed;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 90px;
+            color: rgba(255,255,255,0.55);
+            pointer-events: none;
+        }
+
+        body::before {
+            top: 20px;
+            left: 30px;
+        }
+
+        body::after {
+            bottom: 10px;
+            right: 35px;
+            font-size: 70px;
+        }
+
+        .page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 55px 20px;
+        }
+
+        .ornament {
+            font-family: 'Cormorant Garamond', serif;
+            color: #a88696;
+            font-size: 20px;
+            letter-spacing: 10px;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(42px, 8vw, 70px);
+            font-weight: 500;
+            color: #594b55;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 19px;
+            color: #9b7f8d;
+            letter-spacing: 3px;
+            margin-bottom: 35px;
+        }
+
+        .game-container {
+            width: min(760px, 100%);
+            padding: 25px;
+            background: rgba(255, 250, 252, 0.65);
+            border: 1px solid rgba(255,255,255,0.85);
+            border-radius: 28px;
+            box-shadow:
+                0 20px 60px rgba(101, 75, 91, 0.13),
+                inset 0 0 30px rgba(255,255,255,0.35);
+            backdrop-filter: blur(12px);
+        }
+
+        .game {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .card {
+            aspect-ratio: 1;
+            perspective: 800px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.55s cubic-bezier(.4,.2,.2,1);
+        }
+
+        .card.flipped .card-inner,
+        .card.matched .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        .card-back {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.85), rgba(239,220,229,0.9));
+            border: 1px solid rgba(255,255,255,0.95);
+            box-shadow: 0 8px 20px rgba(95,70,85,0.10);
+        }
+
+        .card-back::before {
+            content: "✧";
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 42px;
+            color: #b696a6;
+        }
+
+        .card-front {
+            transform: rotateY(180deg);
+            background: #fff;
+            border: 4px solid rgba(255,255,255,0.9);
+            box-shadow: 0 8px 20px rgba(95,70,85,0.10);
+        }
+
+        .card-front img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .card.matched {
+            cursor: default;
+        }
+
+        .card.matched .card-front {
+            box-shadow:
+                0 0 0 3px rgba(189,151,169,0.25),
+                0 8px 25px rgba(95,70,85,0.12);
+        }
+
+        .bottom-ornament {
+            margin-top: 30px;
+            color: #a88696;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 24px;
+            letter-spacing: 12px;
+        }
+
+        .win-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+            background: rgba(72, 54, 65, 0.35);
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .win-screen.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .win-box {
+            width: min(520px, 100%);
+            padding: 55px 30px;
+            text-align: center;
+            background: rgba(255,248,251,0.96);
+            border: 1px solid white;
+            border-radius: 30px;
+            box-shadow: 0 30px 80px rgba(50,35,45,0.25);
+            animation: appear 0.6s ease;
+        }
+
+        @keyframes appear {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .win-decoration {
+            color: #aa8798;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 27px;
+            letter-spacing: 12px;
+            margin-bottom: 20px;
+        }
+
+        .win-box h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(40px, 9vw, 65px);
+            font-weight: 600;
+            color: #594b55;
+            margin-bottom: 30px;
+        }
+
+        .next-button {
+            border: none;
+            background: #a88696;
+            color: white;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 16px;
+            letter-spacing: 3px;
+            padding: 15px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .next-button:hover {
+            transform: translateY(-3px);
+            background: #947184;
+        }
+
+        canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 30;
+            pointer-events: none;
+        }
+
+        @media (max-width: 600px) {
+            .page {
+                padding: 35px 12px;
+            }
+
+            .game-container {
+                padding: 14px;
+                border-radius: 22px;
+            }
+
+            .game {
+                gap: 9px;
+            }
+
+            .card-face {
+                border-radius: 13px;
+            }
+
+            .card-front {
+                border-width: 3px;
+            }
+
+            .card-back::before {
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="confetti"></canvas>
+
+    <main class="page">
+
+        <div class="ornament">✦　⋆　✦</div>
+
+        <h1>Memory</h1>
+
+        <div class="subtitle">♡　find the pairs　♡</div>
+
+        <section class="game-container">
+            <div class="game" id="game"></div>
+        </section>
+
+        <div class="bottom-ornament">✧　·　✧　·　✧</div>
+
+    </main>
+
+    <div class="win-screen" id="winScreen">
+        <div class="win-box">
+            <div class="win-decoration">✦　♡　✦</div>
+
+            <h2>YAY GOODJOBBB</h2>
+
+            <button class="next-button" onclick="goNext()">next</button>
+        </div>
+    </div>
+
+    <script>
+        const pictures = [
+            "Picture 1",
+            "Picture 2",
+            "Picture 3",
+            "Picture 4",
+            "Picture 5",
+            "Picture 6",
+            "Picture 7",
+            "Picture 8"
+        ];
+
+        let cards = [...pictures, ...pictures];
+
+        const game = document.getElementById("game");
+        const winScreen = document.getElementById("winScreen");
+
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let locked = false;
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function createCards() {
+            game.innerHTML = "";
+
+            shuffle(cards).forEach((picture, index) => {
+
+                const card = document.createElement("div");
+                card.className = "card";
+                card.dataset.picture = picture;
+
+                card.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-face card-back"></div>
+                        <div class="card-face card-front">
+                            <img src="${picture}" alt="">
+                        </div>
+                    </div>
+                `;
+
+                card.addEventListener("click", () => flipCard(card));
+
+                game.appendChild(card);
+            });
+        }
+
+        function flipCard(card) {
+            if (
+                locked ||
+                card.classList.contains("flipped") ||
+                card.classList.contains("matched")
+            ) {
+                return;
+            }
+
+            card.classList.add("flipped");
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            locked = true;
+
+            const [first, second] = flippedCards;
+
+            if (first.dataset.picture === second.dataset.picture) {
+
+                first.classList.add("matched");
+                second.classList.add("matched");
+
+                matchedPairs++;
+                flippedCards = [];
+                locked = false;
+
+                if (matchedPairs === pictures.length) {
+                    setTimeout(win, 600);
+                }
+
+            } else {
+
+                setTimeout(() => {
+                    first.classList.remove("flipped");
+                    second.classList.remove("flipped");
+
+                    flippedCards = [];
+                    locked = false;
+                }, 850);
+            }
+        }
+
+        function win() {
+            winScreen.classList.add("show");
+            startConfetti();
+        }
+
+        function goNext() {
+            window.location.href = "letter.html";
+        }
+
+        createCards();
+
+        const canvas = document.getElementById("confetti");
+        const ctx = canvas.getContext("2d");
+
+        let confetti = [];
+        let animation;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        function startConfetti() {
+            confetti = [];
+
+            for (let i = 0; i < 180; i++) {
+                confetti.push({
+                    x: Math.random() * canvas.width,
+                    y: -Math.random() * canvas.height,
+                    size: Math.random() * 7 + 4,
+                    speed: Math.random() * 4 + 2,
+                    drift: Math.random() * 2 - 1,
+                    rotation: Math.random() * Math.PI,
+                    rotationSpeed: Math.random() * 0.15 - 0.075
+                });
+            }
+
+            animateConfetti();
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            confetti.forEach(piece => {
+
+                piece.y += piece.speed;
+                piece.x += piece.drift;
+                piece.rotation += piece.rotationSpeed;
+
+                ctx.save();
+
+                ctx.translate(piece.x, piece.y);
+                ctx.rotate(piece.rotation);
+
+                ctx.fillStyle = `hsl(${Math.random() * 360}, 35%, 75%)`;
+                ctx.fillRect(
+                    -piece.size / 2,
+                    -piece.size / 2,
+                    piece.size,
+                    piece.size * 0.6
+                );
+
+                ctx.restore();
+            });
+
+            confetti = confetti.filter(piece => piece.y < canvas.height + 30);
+
+            if (confetti.length > 0) {
+                animation = requestAnimationFrame(animateConfetti);
+            } else {
+                cancelAnimationFrame(animation);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+    </script>
+
+</body>
+  </html>
